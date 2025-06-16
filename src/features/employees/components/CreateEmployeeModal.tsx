@@ -66,22 +66,24 @@ const CreateEmployeeModal = ({
     setStatus(event.target.value as EmployeeStatus)
   }, [])
 
-  const validateName = (value: string) => value.replace(/\s/g, '').length >= 2
+  const validateName = (value: string) => /^[A-Za-z]+$/.test(value.trim())
 
   const handleSubmit = async () => {
     if (!validateName(name)) {
-      setNameError('Name must be at least 2 non-space characters')
+      setNameError('Name must contain latin letters')
       return
     }
 
-    await onEmployeeCreated()
-
-    setName('')
-    setStatus('Working')
-    setNameError('')
-    handleClose()
+    try {
+      await onEmployeeCreated()
+      setName('')
+      setStatus('Working')
+      setNameError('')
+      handleClose()
+    } catch (error) {
+      setNameError('Failed to create user. Please try again.')
+    }
   }
-
   return (
     <Dialog open={open} onClose={handleClose} maxWidth="xs" fullWidth>
       <DialogTitle>Create New User</DialogTitle>
