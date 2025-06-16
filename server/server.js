@@ -25,7 +25,7 @@ const employees = [
   {
     id: 3,
     name: 'Sheli',
-    status: 'Working',
+    status: 'OnVacation',
     img: 'https://api.dicebear.com/8.x/thumbs/svg?seed=Sheli',
   },
   {
@@ -37,13 +37,13 @@ const employees = [
   {
     id: 5,
     name: 'Lara',
-    status: 'Working',
+    status: 'BusinessTrip',
     img: 'https://api.dicebear.com/8.x/thumbs/svg?seed=Lara',
   },
   {
     id: 6,
     name: 'Mike',
-    status: 'Working',
+    status: 'LunchTime',
     img: 'https://api.dicebear.com/8.x/thumbs/svg?seed=Mike',
   },
 ]

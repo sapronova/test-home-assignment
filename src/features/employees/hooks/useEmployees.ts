@@ -1,5 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
 
+import { getEmployees, updateEmployeeStatus } from '@/api/employees'
+import { useDebouncedValue } from '@/shared/hooks/useDebouncedValue'
 import { Employee, EmployeeStatus } from '@/types'
 
 interface UseEmployeesResult {
@@ -20,12 +22,13 @@ export const useEmployees = (): UseEmployeesResult => {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
+  const debouncedSearchTerm = useDebouncedValue(searchTerm)
   const [statusFilter, setStatusFilter] = useState<EmployeeStatus | 'All' | ''>('')
 
   const filteredEmployees = useMemo(() => {
     return employees.filter(employee => {
-      const matchesSearch = searchTerm
-        ? employee.name.toLowerCase().includes(searchTerm.toLowerCase())
+      const matchesSearch = debouncedSearchTerm
+        ? employee.name.toLowerCase().includes(debouncedSearchTerm.toLowerCase())
         : true
 
       const matchesStatus =
@@ -33,20 +36,14 @@ export const useEmployees = (): UseEmployeesResult => {
 
       return matchesSearch && matchesStatus
     })
-  }, [employees, searchTerm, statusFilter])
+  }, [employees, debouncedSearchTerm, statusFilter])
 
   const fetchEmployees = useCallback(async () => {
     setIsLoading(true)
     setError(null)
 
     try {
-      const response = await fetch('/users')
-
-      if (!response.ok) {
-        throw new Error('Network response was not ok')
-      }
-
-      const data = (await response.json()) as Employee[]
+      const data = await getEmployees()
       setEmployees(data)
     } catch (err) {
       console.error('Fetch error:', err)
@@ -59,23 +56,10 @@ export const useEmployees = (): UseEmployeesResult => {
   const updateStatus = useCallback(async (id: number, status: EmployeeStatus) => {
     try {
       setEmployees(prev => prev.map(emp => (emp.id === id ? { ...emp, status } : emp)))
-
-      const response = await fetch(`/users/${id}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ status }),
-      })
-
-      if (!response.ok) {
-        setEmployees(prev =>
-          prev.map(emp => (emp.id === id ? { ...emp, status: emp.status } : emp))
-        )
-        throw new Error('Update failed')
-      }
+      await updateEmployeeStatus(id, status)
     } catch (err) {
       console.error('Update error:', err)
+      setEmployees(prev => prev.map(emp => (emp.id === id ? { ...emp, status: emp.status } : emp)))
       throw err
     }
   }, [])

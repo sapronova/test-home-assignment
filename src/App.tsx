@@ -2,7 +2,7 @@ import { Container, ThemeProvider } from '@mui/material'
 
 import Header from './components/layout/Header'
 import { EmployeesPage } from './features/employees/pages/EmployeesPage'
-import { theme } from './theme'
+import { theme } from './shared/theme'
 
 function App() {
   return (
